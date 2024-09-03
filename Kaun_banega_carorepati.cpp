@@ -43,25 +43,25 @@ void displayQuestion (const string &question ,const string options[]){
 }
 
 
-// void applyLifeline( string currentOptions[], const string &correctOption , int index, bool &lifelineUse){
-//     int currentIndex ;
-//     for (int k=0; k<4; k++){
-//         if(currentOptions[k]== correctOption){
-//             currentIndex = k;
-//             break;
-//         }
-//     }
+void applyLifeline( string currentOptions[], const string &correctOption , int index, bool &lifelineUse){
+    int currentIndex ;
+    for (int k=0; k<4; k++){
+        if(currentOptions[k]== correctOption){
+            currentIndex = k;
+            break;
+        }
+    }
 
-//     int count = 0;
-//     while (count < 2){
-//         int removeIndex = rand () % 4;
-//         if(removeIndex != currentIndex && !currentOptions[removeIndex].empty()){
-//             currentOptions[removeIndex] = "";
-//             count ++;
-//         }
-//     }
+    int count = 0;
+    while (count < 2){
+        int removeIndex = rand () % 4;
+        if(removeIndex != currentIndex && !currentOptions[removeIndex].empty()){
+            currentOptions[removeIndex] = "";
+            count ++;
+        }
+    }
 
-// }
+}
 
 void askQuestion(const string question[], const string options[][4],
     const string correctOptions[], int &score, bool &lifelineUse){
@@ -74,19 +74,19 @@ void askQuestion(const string question[], const string options[][4],
             cout << YELLOW << i + 1 << "." << RESET << endl;
             displayQuestion(question[i], currentOptions);
 
-        //      if (!lifelineUse) {
-        //     cout << BLUE << "Do you want to use the 50-50 lifeline? (Y/N): " << RESET;
-        //     char lifelineChoice;
-        //     cin >> lifelineChoice;
-        //     lifelineChoice = toupper(lifelineChoice);
+             if (!lifelineUse) {
+            cout << BLUE << "Do you want to use the 50-50 lifeline? (Y/N): " << RESET;
+            char lifelineChoice;
+            cin >> lifelineChoice;
+            lifelineChoice = toupper(lifelineChoice);
 
-        //     if (lifelineChoice == 'Y') {
-        //         lifelineUse = true;
-        //         applyLifeline(currentOptions, correctOptions[i], i);
-        //         cout << BLUE << "Updated options after using 50-50 lifeline: " << RESET << endl;
-        //         displayQuestion(question[i], currentOptions);
-        //     }
-        // }
+            if (lifelineChoice == 'Y') {
+                lifelineUse = true;
+                applyLifeline(currentOptions, correctOptions[i], i, lifelineUse);
+                cout << BLUE << "Updated options after using 50-50 lifeline: " << RESET << endl;
+                displayQuestion(question[i], currentOptions);
+            }
+        }
 
 
             cout << BLUE <<  "Enter your answer (A-D): "<< RESET ;
