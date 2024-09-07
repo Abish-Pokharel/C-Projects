@@ -1,5 +1,6 @@
 #include<iostream>
 #include<iomanip>
+#include<windows.h>
 using namespace std;
 
     const string RED = "\033[31m";
@@ -10,7 +11,12 @@ using namespace std;
     const string MAGENTA = "\033[35m";
     const string RESET = "\033[0m"; 
 
-
+void clearScreen(){
+    system("cls");
+}
+void pause(){
+    Sleep(1500);
+}
 void drawLine(){
     cout << "-----------------------------------------------------------------------------------------------------------" << endl;
 };
@@ -19,31 +25,59 @@ void drawLine(){
 void displayRules() {
     drawLine();
     cout << " " <<endl;
-    cout << CYAN << "                                       Quiz Game Rules" << RESET << endl;
+    cout << CYAN << "                                            Quiz Game Rules" << RESET << endl;
     drawLine();
-    cout  << "1. Objective: Answer as many questions correctly as possible to accumulate points."  << endl;
-    cout  << "2. Categories: History, Geography, Science, Sports. Each category has 10 questions."  << endl;
-    cout  << "3. Question Format: Each question has four multiple-choice options (A, B, C, D). Only one option is correct."  << endl;
-    cout  << "4. Scoring: Each correct answer awards 5 points. Incorrect answers receive no points."  << endl;
-    cout  << "5. Gameplay: Choose a category and answer one question at a time. Enter the letter of your choice (A, B, C, or D)."  << endl;
-    cout  << "6. Game End: After 10 questions, the game ends, and your total score is displayed."  << endl;
-    cout  << "7. Exit: You can exit the game at any time by selecting the 'Exit the game' option."  << endl;
-    cout  << "8. Feedback: At the end of the game, you receive feedback based on your score."  << endl;
+    cout  << "1."<<YELLOW <<" Objective:"<<RESET<<" Answer as many questions correctly as possible to accumulate points."  << endl;
+    cout  << "2."<<YELLOW <<" Categories:"<<RESET<<" History, Geography, Science, Sports. Each category has 10 questions."  << endl;
+    cout  << "3."<<YELLOW <<" Lifeline:"<<RESET<<" You can use a 50-50 lifeline once during the game, removing two incorrect options." << endl;
+    cout  << "4."<<YELLOW <<" Scoring:"<<RESET<<" Each correct answer awards 5 points. Incorrect answers receive no points."  << endl;
+    cout  << "5."<<YELLOW <<" Gameplay:"<<RESET<<" Choose a category and answer one question at a time. Enter the letter of your choice (A, B, C, or D)."  << endl;
+    cout  << "6."<<YELLOW <<" Game End:"<<RESET<<" After 10 questions, the game ends, and your total score is displayed."  << endl;
+    cout  << "7."<<YELLOW <<" Exit:"<<RESET<<" You can exit the game at any time by selecting the 'Exit the game' option."  << endl;
     drawLine();
 }
+
+
+
+void displayMenu(){
+     cout << " " <<endl;
+    cout << " " <<endl;    
+    drawLine();
+    cout << " " <<endl;
+    cout << BLUE << "                                        Welcome to the Game !!!" << RESET <<endl;
+    displayRules();
+    cout << " " <<endl;
+    cout << " " <<endl;
+    cout << GREEN << "                                  Please, try to answer them correctly" << RESET <<endl;
+    Sleep(10000);
+    clearScreen();
+    // cout << " " <<endl;
+    // cout << " " <<endl;
+
+    cout << CYAN << "Enter your choice wisely......" << RESET << endl;
+    cout << "" << endl;
+    cout << GREEN << "              1. History" << RESET << endl;
+    cout << GREEN << "              2. Geography" << RESET << endl;
+    cout << GREEN << "              3. Science" << RESET << endl;
+    cout << GREEN << "              4. Sports" << RESET << endl;
+    cout << RED << "              5. Exit the game" << RESET << endl;
+    cout << "" << endl;
+}
+
 
 
 void displayQuestion (const string &question ,const string options[]){
     cout << YELLOW << question << RESET << endl;
     for ( int j= 0; j< 4; j++){
         if(!options[j].empty()){
+            pause();
             cout << MAGENTA << char('A' + j) << ". " << options[j] << RESET << endl;
         }
     }
 }
 
 
-void applyLifeline( string currentOptions[], const string &correctOption , int index, bool &lifelineUse){
+void applyLifeline( string currentOptions[], const string &correctOption , bool &lifelineUse){
     int currentIndex ;
     for (int k=0; k<4; k++){
         if(currentOptions[k]== correctOption){
@@ -73,25 +107,33 @@ void askQuestion(const string question[], const string options[][4],
                 }
             cout << YELLOW << i + 1 << "." << RESET << endl;
             displayQuestion(question[i], currentOptions);
+            pause();
 
              if (!lifelineUse) {
-            cout << BLUE << "Do you want to use the 50-50 lifeline? (Y/N): " << RESET;
-            char lifelineChoice;
-            cin >> lifelineChoice;
-            lifelineChoice = toupper(lifelineChoice);
+                cout << "" << endl;
+                cout << BLUE << "Do you want to use the " << GREEN << " 50-50 "<< RESET << BLUE << "lifeline? (Y/N): " << RESET;
+                char lifelineChoice;
+                cin >> lifelineChoice;
+                pause();
+                lifelineChoice = toupper(lifelineChoice);
 
-            if (lifelineChoice == 'Y') {
-                lifelineUse = true;
-                applyLifeline(currentOptions, correctOptions[i], i, lifelineUse);
-                cout << BLUE << "Updated options after using 50-50 lifeline: " << RESET << endl;
-                displayQuestion(question[i], currentOptions);
+                if (lifelineChoice == 'Y') {
+                    lifelineUse = true;
+                    applyLifeline(currentOptions, correctOptions[i], lifelineUse);
+                    pause();
+                    clearScreen();
+                    cout << CYAN << "Updated options after using" << GREEN << " 50-50 "<< RESET << CYAN << "lifeline: "  << RESET << endl;
+                    cout << "" << endl;
+                    pause();
+                    displayQuestion(question[i], currentOptions);
+                }
             }
-        }
 
 
             cout << BLUE <<  "Enter your answer (A-D): "<< RESET ;
             cin >> answer;
             answer = toupper(answer);
+            pause();
 
             int answerIndex = answer -'A';
             if (options[i][answerIndex] == correctOptions[i]) {
@@ -99,11 +141,14 @@ void askQuestion(const string question[], const string options[][4],
                 drawLine();
                 cout << "" << endl;
                 cout << "" << endl;
-                score = score + 5;
+                score = score + 10;
             } else {
                 cout << RED << "Wrong! The correct answer is " << correctOptions[i] << "." << RESET << endl;
+                score = score - 5;
                 drawLine();
             }
+            pause();
+            clearScreen();
         }
     }
 
@@ -302,70 +347,41 @@ void askSports(int &score, bool &lifelineUse){
 
 int main()
 {
-    
-
     int choice;
     int score = 0;
     bool exitedGame = false;
     bool lifelineUse = false;
-
-
-    cout << " " <<endl;
-    cout << " " <<endl;    
-    drawLine();
-    cout << " " <<endl;
-    cout << BLUE << "                                   Welcome to the Game !!!" << RESET <<endl;
-    displayRules();
-    cout << " " <<endl;
-    cout << " " <<endl;
-    cout << " " <<endl;
-    cout << GREEN << "                                  Try to answer correctly" << RESET <<endl;
-    drawLine();
-    cout << " " <<endl;
-    cout << " " <<endl;
-
-    cout << CYAN << "Enter your choice wisely......" << RESET << endl;
-    cout << "" << endl;
-    cout << GREEN << "1. History" << RESET << endl;
-    cout << GREEN << "2. Geography" << RESET << endl;
-    cout << GREEN << "3. Science" << RESET << endl;
-    cout << GREEN << "4. Sports" << RESET << endl;
-    cout << GREEN << "5. Exit the game" << RESET << endl;
-    cout << "" << endl;
+    
+    displayMenu(); 
 
     cin >> choice;
-
-    cout << " " <<endl;
-    drawLine();
+    pause();
+    clearScreen();
 
     switch(choice){
-        case 1:  // History
+        case 1:
             askHistory(score, lifelineUse);
             break;
-
-        case 2: // Grography
+        case 2:
             askGeography(score, lifelineUse);
-            break;
-        
-        case 3: // Science
+            break;        
+        case 3: 
             askScience(score, lifelineUse);
             break;
-
-        case 4: // Sports
+        case 4:
             askSports(score, lifelineUse);
             break;
-
-        case 5: // exit
+        case 5: 
             cout << RED << "Quitting the game." << RESET << endl;
             exitedGame = true;
             break;
-
         default :
             cout << RED << "Invalid Choice" << endl;
     }   
-    
+
+
    if(!exitedGame){
-     cout << BLUE << "Your score is :" << score  << RESET  << endl;
+     cout << BLUE << "Your score is: " << score  << RESET  << endl;
      if (score >= 45) {
         cout << GREEN << "Outstanding !!!" << RESET << endl;
     } else if (score >= 35) {
@@ -375,9 +391,7 @@ int main()
     } else {
         cout << RED << "Better luck next time !!!" << RESET << endl;
     }
-   }
-    
-    drawLine();
-
+   }    
+    // drawLine();
     return 0;
 }
