@@ -1,6 +1,8 @@
 #include<iostream>
 #include<iomanip>
 #include<windows.h>
+
+
 using namespace std;
 
     const string RED = "\033[31m";
@@ -339,10 +341,6 @@ void askSports(int &score, bool &lifelineUse){
     };
     askQuestion(question, options, correctOption, score, lifelineUse);
 }
-
-
-
-
 
 
 int main()
