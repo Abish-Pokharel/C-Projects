@@ -17,23 +17,47 @@ void clearScreen(){
     system("cls");
 }
 void pause(){
-    Sleep(1500);
+    Sleep(1250);
 }
 void drawLine(){
     cout << "-----------------------------------------------------------------------------------------------------------" << endl;
 };
 
+void quizStart(){
+    cout << ""<< endl;
+    cout << ""<< endl;
+    cout << ""<< endl;
+    cout << CYAN <<"                            ************************************************************************"<< RESET << endl;
+    cout << CYAN <<"                            *                                                                      *"<< RESET << endl;
+    cout << CYAN <<"                            *                                                                      *"<< RESET << endl;
+    cout << CYAN <<"                            *                                                                      *"<< RESET << endl;
+    cout << CYAN <<"                            *       " << RESET << GREEN << "              WELCOME TO THE GAME.....          " << RESET << CYAN << "               *"<< RESET << endl;
+    cout << CYAN <<"                            *                                                                      *"<< RESET << endl;
+    cout << CYAN <<"                            *                                                                      *"<< RESET << endl;
+    cout << CYAN <<"                            *                                                          " << RESET << YELLOW << "  MADE  BY" << RESET << CYAN << "  *"<< RESET << endl;
+    cout << CYAN <<"                            *                                                          " << RESET << RED << "    A-20" << RESET << CYAN << "    *"<< RESET << endl;
+    cout << CYAN <<"                            ************************************************************************"<< RESET << endl;
+    
+    cout << ""<< endl;
+    cout << ""<< endl;
+    cout << ""<< endl;
+    cout << MAGENTA << "Press Enter to start the quiz...." << RESET << endl;
+    cin.get();
+    // pause();
+    clearScreen();
+}   
+
 
 void displayRules() {
     drawLine();
     cout << " " <<endl;
-    cout << CYAN << "                                            Quiz Game Rules" << RESET << endl;
+    cout << CYAN << "                                             GAME RULES" << RESET << endl;
     drawLine();
     cout  << "1."<<YELLOW <<" Objective:"<<RESET<<" Answer as many questions correctly as possible to accumulate points."  << endl;
     cout  << "2."<<YELLOW <<" Categories:"<<RESET<<" History, Geography, Science, Sports. Each category has 10 questions."  << endl;
     cout  << "3."<<YELLOW <<" Lifeline:"<<RESET<<" You can use a 50-50 lifeline once during the game, removing two incorrect options." << endl;
     cout  << "4."<<YELLOW <<" Scoring:"<<RESET<<" Each correct answer awards 5 points. Incorrect answers receive no points."  << endl;
-    cout  << "5."<<YELLOW <<" Gameplay:"<<RESET<<" Choose a category and answer one question at a time. Enter the letter of your choice (A, B, C, or D)."  << endl;
+    cout  << "5."<<YELLOW <<" Gameplay:"<<RESET<<" Choose a category and answer one question at a time. Enter the letter of your choice."  << endl;
     cout  << "6."<<YELLOW <<" Game End:"<<RESET<<" After 10 questions, the game ends, and your total score is displayed."  << endl;
     cout  << "7."<<YELLOW <<" Exit:"<<RESET<<" You can exit the game at any time by selecting the 'Exit the game' option."  << endl;
     drawLine();
@@ -42,11 +66,6 @@ void displayRules() {
 
 
 void displayMenu(){
-     cout << " " <<endl;
-    cout << " " <<endl;    
-    drawLine();
-    cout << " " <<endl;
-    cout << BLUE << "                                        Welcome to the Game !!!" << RESET <<endl;
     displayRules();
     cout << " " <<endl;
     cout << " " <<endl;
@@ -350,6 +369,7 @@ int main()
     bool exitedGame = false;
     bool lifelineUse = false;
     
+    quizStart();
     displayMenu(); 
 
     cin >> choice;
@@ -370,6 +390,9 @@ int main()
             askSports(score, lifelineUse);
             break;
         case 5: 
+            cout << ""<<endl;
+            cout << ""<<endl;
+            cout << ""<<endl;
             cout << RED << "Quitting the game." << RESET << endl;
             exitedGame = true;
             break;
@@ -379,17 +402,23 @@ int main()
 
 
    if(!exitedGame){
-     cout << BLUE << "Your score is: " << score  << RESET  << endl;
-     if (score >= 45) {
-        cout << GREEN << "Outstanding !!!" << RESET << endl;
-    } else if (score >= 35) {
-        cout << CYAN << "Nice Job !!!" << RESET << endl;
-    } else if (score >= 20) {
-        cout << CYAN << "Well Done" << RESET << endl;
-    } else {
-        cout << RED << "Better luck next time !!!" << RESET << endl;
-    }
-   }    
+            cout << ""<<endl;
+            cout << ""<<endl;
+            cout << ""<<endl;
+            cout << BLUE << "Your score is: " << score  << RESET  << endl;
+            if (score >= 45) {
+                    cout << GREEN << "Outstanding !!!" << RESET << endl;
+                    } else if (score >= 35) {
+                    cout << CYAN << "Nice Job !!!" << RESET << endl;
+                    } else if (score >= 20) {
+                    cout << CYAN << "Well Done" << RESET << endl;
+                    } else {
+                    cout << RED << "Better luck next time !!!" << RESET << endl;
+                     }   
+    }  
+    cout << ""<<endl;
+    cout << ""<<endl;
+    cout << ""<<endl;  
     // drawLine();
     return 0;
 }
