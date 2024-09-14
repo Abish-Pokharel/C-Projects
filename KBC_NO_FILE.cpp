@@ -1,17 +1,17 @@
 #include<iostream>
 #include<iomanip>
 #include<windows.h>
-
+#include<fstream>
 
 using namespace std;
 
-    const string RED = "\033[31m";
-    const string GREEN = "\033[32m";
-    const string BLUE = "\033[34m";
-    const string YELLOW = "\033[33m";
-    const string CYAN = "\033[36m";
-    const string MAGENTA = "\033[35m";
-    const string RESET = "\033[0m"; 
+const string RED = "\033[31m";
+const string GREEN = "\033[32m";
+const string BLUE = "\033[34m";
+const string YELLOW = "\033[33m";
+const string CYAN = "\033[36m";
+const string MAGENTA = "\033[35m";
+const string RESET = "\033[0m"; 
 
 void clearScreen(){
     system("cls");
@@ -24,6 +24,7 @@ void drawLine(){
 };
 
 void quizStart(){
+    clearScreen();
     cout << ""<< endl;
     cout << ""<< endl;
     cout << ""<< endl;
@@ -77,13 +78,26 @@ void displayMenu(){
 
     cout << CYAN << "Enter your choice wisely......" << RESET << endl;
     cout << "" << endl;
-    cout << GREEN << "              1. History" << RESET << endl;
+    cout << GREEN << "              1. Mythology" << RESET << endl;
     cout << GREEN << "              2. Geography" << RESET << endl;
     cout << GREEN << "              3. Science" << RESET << endl;
     cout << GREEN << "              4. Sports" << RESET << endl;
     cout << RED << "              5. Exit the game" << RESET << endl;
     cout << "" << endl;
 }
+
+void endingDisplay(){
+    cout << ""<< endl;
+    cout << ""<< endl;
+    cout << CYAN << "                            =========================================="<< RESET << endl;
+    cout << CYAN << "                            |                                        |"<< RESET << endl;
+    cout << CYAN << "                            |                                        |"<< RESET << endl;
+    cout << CYAN << "                            |  " << RESET << RED <<"             THE END...  "<< RESET << CYAN << "             |" << RESET << endl;
+    cout << CYAN << "                            |                                        |"<< RESET << endl;
+    cout << CYAN << "                            |                                        |"<< RESET << endl;
+    cout << CYAN << "                            =========================================="<< RESET << endl;
+}
+
 
 
 
@@ -199,6 +213,19 @@ void askQuestion(const string question[], const string options[][4],
 //     }
 
 // };
+
+
+
+
+void saveScore(const string &name, int score) {
+    ofstream file("scorecard.txt", ios::app); 
+    if (file.is_open()) {
+        file << "Player: " << name << ", Score: " << score << endl;
+        file.close();
+    } else {
+        cout << RED << "Error saving score!" << RESET << endl;
+    }
+}
 
 
 void askHistory(int &score, bool &lifelineUse){
@@ -364,12 +391,18 @@ void askSports(int &score, bool &lifelineUse){
 
 int main()
 {
+    // Design d;
+    string playerName;
     int choice;
     int score = 0;
     bool exitedGame = false;
     bool lifelineUse = false;
     
     quizStart();
+    cout << YELLOW << "Please enter your name: " << RESET;
+    cin >> playerName;
+    // Sleep(1000);
+    clearScreen();
     displayMenu(); 
 
     cin >> choice;
@@ -405,20 +438,30 @@ int main()
             cout << ""<<endl;
             cout << ""<<endl;
             cout << ""<<endl;
-            cout << BLUE << "Your score is: " << score  << RESET  << endl;
-            if (score >= 45) {
-                    cout << GREEN << "Outstanding !!!" << RESET << endl;
-                    } else if (score >= 35) {
-                    cout << CYAN << "Nice Job !!!" << RESET << endl;
-                    } else if (score >= 20) {
-                    cout << CYAN << "Well Done" << RESET << endl;
+            cout << BLUE << "CONGRATULATIONS........ "<< RESET  << endl;
+            cout << MAGENTA << "             Your Score is " <<  score << RESET << endl;
+            if (score >= 95) {
+                    cout << GREEN << "              Outstanding !!!" << RESET << endl;
+                    } else if (score >= 80) {
+                    cout << CYAN << "               Nice Job !!!" << RESET << endl;
+                    } else if (score >= 50) {
+                    cout << CYAN << "               Well Done" << RESET << endl;
                     } else {
-                    cout << RED << "Better luck next time !!!" << RESET << endl;
+                    cout << RED << "                Better luck next time !!!" << RESET << endl;
                      }   
     }  
     cout << ""<<endl;
+    cout << ""<<endl; 
+    saveScore(playerName, score); 
+    endingDisplay();
+    // drawLine();
     cout << ""<<endl;
-    cout << ""<<endl;  
+    cout << ""<<endl; 
+    cout << ""<<endl;
+    cout << ""<<endl; 
     // drawLine();
     return 0;
 }
+
+
+
