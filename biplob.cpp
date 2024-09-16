@@ -1,432 +1,289 @@
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <vector>
-#include <map>
 #include <algorithm>
-
+#include <string>
+#include <unordered_map>
+#include <ctime>
 using namespace std;
 
-class Customer {
-public:
+struct Candidate {
     string name;
+    int votes;
+};
+
+struct Voter {
+    string userID;
     string password;
-    double walletUSD = 100000;
-    double walletNPR = 0;
-    double expensesUSD = 0;
-    double expensesNPR = 0;
-    vector<string> bookedRestaurants;
-    vector<string> bookedHotels;
-
-    void registerCustomer() {
-        cout << "Enter your name: ";
-        cin >> name;
-        cout << "Enter your password: ";
-        cin >> password;
-        saveCustomerData();
-        cout << "Registration complete!" << endl;
-    }
-
-    bool login() {
-        ifstream inFile(name + ".txt");
-        if (!inFile) {
-            cout << "No such customer found! Please register first." << endl;
-            return false;
-        }
-
-        string inputName, inputPassword;
-        while (true) {
-            cout << "Enter your name: ";
-            cin >> inputName;
-            cout << "Enter your password: ";
-            cin >> inputPassword;
-
-            if (inputName == name && inputPassword == password) {
-                cout << "Welcome, " << name << "!" << endl;
-                return true;
-            } else {
-                cout << "Incorrect name or password! Try again." << endl;
-            }
-        }
-    }
-
-    void loadCustomerData() {
-        ifstream inFile(name + ".txt");
-        if (!inFile) return;
-
-        getline(inFile, name);
-        getline(inFile, password);
-        inFile >> walletUSD >> walletNPR >> expensesUSD >> expensesNPR;
-        inFile.ignore();
-
-        string booking;
-        while (getline(inFile, booking)) {
-            if (booking.find("Restaurant:") != string::npos) {
-                bookedRestaurants.push_back(booking);
-            } else if (booking.find("Hotel:") != string::npos) {
-                bookedHotels.push_back(booking);
-            }
-        }
-
-        inFile.close();
-    }
-
-    void saveCustomerData() {
-        ofstream outFile(name + ".txt");
-        outFile << name << "\n" << password << "\n" << walletUSD << "\n" << walletNPR << "\n" << expensesUSD << "\n" << expensesNPR << "\n";
-        for (const auto& booking : bookedRestaurants) {
-            outFile << booking << endl;
-        }
-        for (const auto& booking : bookedHotels) {
-            outFile << booking << endl;
-        }
-        outFile.close();
-    }
-
-    void walletSection() {
-        cout << "Wallet: " << endl;
-        cout << "USD: $" << walletUSD << endl;
-        cout << "NPR: Rs " << walletNPR << endl;
-        cout << "Expenses USD: $" << expensesUSD << endl;
-        cout << "Expenses NPR: Rs " << expensesNPR << endl;
-    }
-
-    void currencyExchange() {
-        char option;
-        double amount;
-        cout << "A. Hello Exchange Center (1 USD = 130 NPR)\nB. Bye Exchange Center (1 USD = 132 NPR)" << endl;
-        cout << "Select option: ";
-        cin >> option;
-        cout << "Enter amount to exchange in USD: ";
-        cin >> amount;
-
-        if (option == 'A' || option == 'a') {
-            walletUSD -= amount;
-            walletNPR += amount * 130;
-        } else if (option == 'B' || option == 'b') {
-            walletUSD -= amount;
-            walletNPR += amount * 132;
-        } else {
-            cout << "Invalid option!" << endl;
-            return;
-        }
-
-        expensesUSD += amount;
-        saveCustomerData();
-        cout << "Exchange complete!" << endl;
-    }
-
-    void viewRestaurants() {
-        ifstream restaurantFile("restaurants.txt");
-        string name, about;
-        double price;
-
-        cout << "Available Restaurants:" << endl;
-        while (getline(restaurantFile, name)) {
-            getline(restaurantFile, about);
-            restaurantFile >> price;
-            restaurantFile.ignore();
-            cout << name << endl;
-            cout << "   About: " << about << endl;
-            cout << "   Price: NPR " << price << " per day" << endl;
-        }
-        restaurantFile.close();
-    }
-
-    void viewHotels() {
-        ifstream hotelFile("hotels.txt");
-        string name, about;
-        double price;
-
-        cout << "Available Hotels:" << endl;
-        while (getline(hotelFile, name)) {
-            getline(hotelFile, about);
-            hotelFile >> price;
-            hotelFile.ignore();
-            cout << name << endl;
-            cout << "   About: " << about << endl;
-            cout << "   Price: NPR " << price << " per day" << endl;
-        }
-        hotelFile.close();
-    }
-
-    void book() {
-        char choice;
-        cout << "Choose an option to book:\nA. Restaurant\nB. Hotel\n0. Exit" << endl;
-        cin >> choice;
-
-        if (choice == 'A' || choice == 'a') {
-            viewRestaurants();
-            cout << "Enter restaurant name to book: ";
-            string restaurant;
-            cin.ignore();
-            getline(cin, restaurant);
-            double price = 0;
-            ifstream restaurantFile("restaurants.txt");
-            string name, about;
-            while (getline(restaurantFile, name)) {
-                getline(restaurantFile, about);
-                restaurantFile >> price;
-                restaurantFile.ignore();
-                if (name == restaurant) {
-                    break;
-                }
-            }
-            restaurantFile.close();
-
-            if (find(bookedRestaurants.begin(), bookedRestaurants.end(), "Restaurant:" + restaurant) != bookedRestaurants.end()) {
-                cout << "Already booked!" << endl;
-                return;
-            }
-            if (walletNPR >= price) {
-                walletNPR -= price;
-                expensesNPR += price;
-                bookedRestaurants.push_back("Restaurant:" + restaurant);
-                saveCustomerData();
-                cout << "Booking successful!" << endl;
-            } else {
-                cout << "Insufficient funds!" << endl;
-            }
-        } else if (choice == 'B' || choice == 'b') {
-            viewHotels();
-            cout << "Enter hotel name to book: ";
-            string hotel;
-            cin.ignore();
-            getline(cin, hotel);
-            double priceNPR = 0;
-            ifstream hotelFile("hotels.txt");
-            string name, about;
-            while (getline(hotelFile, name)) {
-                getline(hotelFile, about);
-                hotelFile >> priceNPR;
-                hotelFile.ignore();
-                if (name == hotel) {
-                    break;
-                }
-            }
-            hotelFile.close();
-
-            if (find(bookedHotels.begin(), bookedHotels.end(), "Hotel:" + hotel) != bookedHotels.end()) {
-                cout << "Already booked!" << endl;
-                return;
-            }
-            if (walletNPR >= priceNPR) {
-                walletNPR -= priceNPR;
-                expensesNPR += priceNPR;
-                bookedHotels.push_back("Hotel:" + hotel);
-                saveCustomerData();
-                cout << "Booking successful!" << endl;
-            } else {
-                cout << "Insufficient funds!" << endl;
-            }
-        } else if (choice == '0') {
-            cout << "Exiting booking menu." << endl;
-        } else {
-            cout << "Invalid choice!" << endl;
-        }
-    }
+    bool hasVoted;
 };
+const string adminUsername = "Biplob";
+const string adminPassword = "11";
 
-class Admin {
-public:
-    string username = "Biplob";
-    string password = "333";
-    map<string, pair<string, double>> restaurants;
-    map<string, pair<string, double>> hotels;
+void displayLeaderboard(const vector<Candidate>& candidates) {
+    bool votesExist = false;
 
-    Admin() {
-        loadAdminData();
-    }
+    cout << "\nLeaderboard:\n";
 
-    bool login() {
-        string inputUsername, inputPassword;
-        while (true) {
-            cout << "Enter admin username: ";
-            cin >> inputUsername;
-            cout << "Enter admin password: ";
-            cin >> inputPassword;
-
-            if (inputUsername == username && inputPassword == password) {
-                cout << "Admin login successful!" << endl;
-                return true;
-            } else {
-                cout << "Incorrect username or password! Try again." << endl;
-            }
+    for (const auto& candidate : candidates) {
+        if (candidate.votes > 0) {
+            votesExist = true;
+            cout << candidate.name << ": " << candidate.votes << " votes\n";
         }
     }
 
-    void addHotel() {
-        string hotelName, about;
-        double pricePerDay;
-        cout << "Enter hotel name: ";
-        cin.ignore();
-        getline(cin, hotelName);
-        cout << "Enter about the hotel: ";
-        getline(cin, about);
-        cout << "Enter price per day (in NPR): ";
-        cin >> pricePerDay;
-        hotels[hotelName] = {about, pricePerDay};
-        saveAdminData();
-        cout << "Hotel added successfully!" << endl;
+    if (!votesExist) {
+        cout << "No votes yet.\n";
     }
-
-    void addRestaurant() {
-        string restaurantName, about;
-        double pricePerDay;
-        cout << "Enter restaurant name: ";
-        cin.ignore();
-        getline(cin, restaurantName);
-        cout << "Enter about the restaurant: ";
-        getline(cin, about);
-        cout << "Enter price per day (in NPR): ";
-        cin >> pricePerDay;
-
-        restaurants[restaurantName] = {about, pricePerDay};
-        saveAdminData();
-        cout << "Restaurant added successfully!" << endl;
-    }
-
-    void viewHotels() {
-        cout << "Available Hotels:" << endl;
-        for (const auto& [name, details] : hotels) {
-            cout << name << endl;
-            cout << "   About: " << details.first << endl;
-            cout << "   Price: NPR " << details.second << " per day" << endl;
-        }
-    }
-
-       void viewRestaurants() {
-        cout << "Available Restaurants:" << endl;
-        for (const auto& [name, details] : restaurants) {
-            cout << name << endl;
-            cout << "   About: " << details.first << endl;
-            cout << "   Price: NPR " << details.second << " per day" << endl;
-        }
-    }
-
-    void saveAdminData() {
-        ofstream restaurantFile("restaurants.txt");
-        for (const auto& [name, details] : restaurants) {
-            restaurantFile << name << endl;
-            restaurantFile << details.first << endl;
-            restaurantFile << details.second << endl;
-        }
-        restaurantFile.close();
-
-        ofstream hotelFile("hotels.txt");
-        for (const auto& [name, details] : hotels) {
-            hotelFile << name << endl;
-            hotelFile << details.first << endl;
-            hotelFile << details.second << endl;
-        }
-        hotelFile.close();
-    }
-
-    void loadAdminData() {
-        ifstream restaurantFile("restaurants.txt");
-        string name, about;
-        double price;
-
-        while (getline(restaurantFile, name)) {
-            getline(restaurantFile, about);
-            restaurantFile >> price;
-            restaurantFile.ignore();
-            restaurants[name] = {about, price};
-        }
-        restaurantFile.close();
-
-        ifstream hotelFile("hotels.txt");
-        while (getline(hotelFile, name)) {
-            getline(hotelFile, about);
-            hotelFile >> price;
-            hotelFile.ignore();
-            hotels[name] = {about, price};
-        }
-        hotelFile.close();
-    }
-};
-
-void displayCustomerMenu(Customer& customer) {
-    int option;
-    do {
-        cout << "1. Wallet\n2. Currency Exchange\n3. View Hotels\n4. View Restaurants\n5. Book\n0. Exit\n";
-        cout << "Select an option: ";
-        cin >> option;
-        switch (option) {
-            case 1:
-                customer.walletSection();
-                break;
-            case 2:
-                customer.currencyExchange();
-                break;
-            case 3:
-                customer.viewHotels();
-                break;
-            case 4:
-                customer.viewRestaurants();
-                break;
-            case 5:
-                customer.book();
-                break;
-        }
-    } while (option != 0);
 }
 
-void displayAdminMenu(Admin& admin) {
-    int option;
-    do {
-        cout << "1. Add Hotel\n2. Add Restaurant\n3. View Hotels\n4. View Restaurants\n0. Exit\n";
-        cout << "Select an option: ";
-        cin >> option;
-        switch (option) {
-            case 1:
-                admin.addHotel();
-                break;
-            case 2:
-                admin.addRestaurant();
-                break;
-            case 3:
-                admin.viewHotels();
-                break;
-            case 4:
-                admin.viewRestaurants();
-                break;
+void vote(vector<Candidate>& candidates, unordered_map<string, Voter>& voters, const string& userID) {
+    if (voters[userID].hasVoted) {
+        cout << "Vote already casted.\n";
+        return;
+    }
+
+    cout << "Enter candidate name: ";
+    string candidateName;
+    cin >> candidateName;
+
+    auto it = find_if(candidates.begin(), candidates.end(), [&candidateName](const Candidate& c) {
+        return c.name == candidateName;
+    });
+
+    if (it != candidates.end()) {
+        it->votes++;
+        voters[userID].hasVoted = true;
+        cout << "Vote registered for " << candidateName << "!\n";
+    } else {
+        cout << "Candidate not found.\n";
+    }
+}
+
+void loadCandidates(vector<Candidate>& candidates) {
+    ifstream file("candidates.txt");
+    string name;
+    int votes;
+
+    if (file.is_open()) {
+        while (file >> name >> votes) {
+            candidates.push_back({name, votes});
         }
-    } while (option != 0);
+        file.close();
+    }
+}
+
+void saveCandidates(const vector<Candidate>& candidates) {
+    ofstream file("candidates.txt");
+
+    if (file.is_open()) {
+        for (const auto& candidate : candidates) {
+            file << candidate.name << " " << candidate.votes << endl;
+        }
+        file.close();
+    }
+}
+
+void loadVoters(unordered_map<string, Voter>& voters) {
+    ifstream file("voters.txt");
+    string userID, password;
+    bool hasVoted;
+
+    if (file.is_open()) {
+        while (file >> userID >> password >> hasVoted) {
+            voters[userID] = {userID, password, hasVoted};
+        }
+        file.close();
+    }
+}
+
+void saveVoters(const unordered_map<string, Voter>& voters) {
+    ofstream file("voters.txt");
+
+    if (file.is_open()) {
+        for (const auto& voter : voters) {
+            file << voter.first << " " << voter.second.password << " " << voter.second.hasVoted << endl;
+        }
+        file.close();
+    }
+}
+
+bool adminLogin() {
+    string username, password;
+    int attempts = 0;
+
+    while (attempts < 3) {
+        cout << "Enter Admin Username: ";
+        cin >> username;
+        cout << "Enter Admin Password: ";
+        cin >> password;
+
+        if (username == adminUsername && password == adminPassword) {
+            return true;
+        } else {
+            cout << "Incorrect username or password. Try again.\n";
+            attempts++;
+        }
+    }
+
+    cout << "Too many attempts. Program will end.\n";
+    return false;
+}
+
+void registerVoter(unordered_map<string, Voter>& voters) {
+    string userID, password;
+
+    cout << "Enter new voter user ID (number): ";
+    cin >> userID;
+    cout << "Enter new voter password: ";
+    cin >> password;
+
+    voters[userID] = {userID, password, false};
+    cout << "Voter " << userID << " registered successfully.\n";
+}
+
+void registerCandidate(vector<Candidate>& candidates) {
+    string name;
+    cout << "Enter new candidate name: ";
+    cin >> name;
+    candidates.push_back({name, 0});
+    cout << "Candidate " << name << " registered successfully.\n";
+}
+
+void viewVoterDetails(const unordered_map<string, Voter>& voters) {
+    if (voters.empty()) {
+        cout << "\nNo voters registered yet.\n";
+    } else {
+        cout << "\nRegistered Voters:\n";
+        for (const auto& voter : voters) {
+            cout << "User ID: " << voter.first;
+            if (voter.second.hasVoted) {
+                cout << " (voted)\n";
+            } else {
+                cout << "\n";
+            }
+        }
+    }
+}
+
+void viewCandidateDetails(const vector<Candidate>& candidates) {
+    if (candidates.empty()) {
+        cout << "\nNo candidates registered yet.\n";
+    } else {
+        cout << "\nRegistered Candidates:\n";
+        for (const auto& candidate : candidates) {
+            cout << candidate.name << "\n";
+        }
+    }
+}
+
+bool voterLogin(const unordered_map<string, Voter>& voters, string& userID) {
+    string password;
+
+    cout << "Enter Voter User ID: ";
+    cin >> userID;
+    cout << "Enter Voter Password: ";
+    cin >> password;
+
+    if (voters.find(userID) != voters.end() && voters.at(userID).password == password) {
+        cout << "Login successful!\n";
+        return true;
+    } else {
+        cout << "Invalid user ID or password.\n";
+        return false;
+    }
+}
+
+void tieBreaker() {
+    string candidate1, candidate2, choice;
+
+    cout << "Enter the name of the candidate to flip the coin: ";
+    cin >> candidate1;
+    cout << "Enter the name of the candidate who prays: ";
+    cin >> candidate2;
+
+    cout << "Choose heads or tails (h/t): ";
+    cin >> choice;
+
+    while (choice != "h" && choice != "t") {
+        cout << "Invalid choice. Please choose 'h' for heads or 't' for tails: ";
+        cin >> choice;
+    }
+
+    srand(static_cast<unsigned int>(time(0)));
+    int coinFlip = rand() % 2;
+
+    cout << "Coin is flipped...\n";
+    if ((coinFlip == 0 && choice == "h") || (coinFlip == 1 && choice == "t")) {
+        cout << candidate1 << " is the winner of the tiebreaker!\n";
+    } else {
+        cout << candidate2 << " is the winner of the tiebreaker!\n";
+    }
 }
 
 int main() {
-    int mainOption;
-    Customer customer;
-    Admin admin;
+    vector<Candidate> candidates;
+    unordered_map<string, Voter> voters;
+    loadCandidates(candidates);
+    loadVoters(voters);
 
-    cout << "************* Smart Visit *************" << endl;
-    cout << "1. Admin\n2. Customer\nSelect an option: ";
-    cin >> mainOption;
+    while (true) {
+        cout << "\n===============================\n";
+        cout << "   Welcome to 'Vote The GOAT'\n";
+        cout << "===============================\n";
+        cout << "\n1. Admin Section\n2. Voter Section\n3. Tie Breaker\n4. Exit\nChoose an option: ";
+        int mainChoice;
+        cin >> mainChoice;
 
-    switch (mainOption) {
-        case 1:
-            if (admin.login()) {
-                displayAdminMenu(admin);
+        if (mainChoice == 1) {
+            if (!adminLogin()) {
+                break;
             }
+
+            int adminChoice;
+            do {
+                cout << "\nAdmin Menu:\n1. Register Voter\n2. Register Candidate\n3. View Voter Details\n4. View Candidate Details\n5. Display Leaderboard \n6. Logout\nChoose an option: ";
+                cin >> adminChoice;
+
+                if (adminChoice == 1) {
+                    registerVoter(voters);
+                    saveVoters(voters);
+                } else if (adminChoice == 2) {
+                    registerCandidate(candidates);
+                    saveCandidates(candidates);
+                } else if (adminChoice == 3) {
+                    viewVoterDetails(voters);
+                } else if (adminChoice == 4) {
+                    viewCandidateDetails(candidates);
+                } else if (adminChoice == 5) {
+                    displayLeaderboard(candidates);    
+                } else if (adminChoice == 6) {
+                    cout << "Logging out...\n";
+                    break;
+                } else {
+                    cout << "Invalid choice. Please try again.\n";
+                }
+            } while (adminChoice != 5);
+        } else if (mainChoice == 2) {
+            string userID;
+            if (voterLogin(voters, userID)) {
+                if (voters[userID].hasVoted) {
+                    cout << "Vote already casted.\n";
+                    continue;
+                }
+                vote(candidates, voters, userID);
+                saveVoters(voters);
+                saveCandidates(candidates);
+            }
+        } else if (mainChoice == 3) {
+            tieBreaker();
+        } else if (mainChoice == 4) {
+            cout << "Exiting...\n";
+            saveCandidates(candidates);
             break;
-        case 2:
-            cout << "1. Register\n2. Log in\n";
-            int customerOption;
-            cin >> customerOption;
-            if (customerOption == 1) {
-                customer.registerCustomer();
-            }
-            cout << "Enter customer name: ";
-            cin >> customer.name;
-            customer.loadCustomerData();
-            if (customer.login()) {
-                displayCustomerMenu(customer);
-            }
-            break;
-        default:
-            cout << "Invalid option!" << endl;
+        } else {
+            cout << "Invalid choice. Please try again.\n";
+        }
     }
-
     return 0;
 }

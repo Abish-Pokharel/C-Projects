@@ -13,6 +13,26 @@ const string CYAN = "\033[36m";
 const string MAGENTA = "\033[35m";
 const string RESET = "\033[0m"; 
 
+
+// bool exitGame = false;
+
+void quizStart();
+void displayRules();
+void viewScorecard();
+void adminMode();
+void displayMenu();
+void playerMode(int &score, bool &lifelineUse);
+void displayFirst();
+// void endingDisplay();
+void displayQuestion(const string &question, const string options[]);
+void applyLifeline(string currentOptions[], const string &correctOption, bool &lifelineUse);
+void askQuestion(const string question[], const string options[][4], const string correctOptions[], int &score, bool &lifelineUse);
+void saveScore(const string &name, int score);
+void askHistory(int &score, bool &lifelineUse);
+void askGeography(int &score, bool &lifelineUse);
+void askScience(int &score, bool &lifelineUse);
+void askSports(int &score, bool &lifelineUse);
+
 void clearScreen(){
     system("cls");
 }
@@ -22,6 +42,12 @@ void pause(){
 void drawLine(){
     cout << "-----------------------------------------------------------------------------------------------------------" << endl;
 };
+void header(){
+    cout <<""<< endl;
+    cout << BLUE << "                                             PLAYER MODE" << RESET << endl;
+    cout <<""<< endl;
+    // cout <<""<< endl;
+}
 
 void quizStart(){
     clearScreen();
@@ -65,19 +91,73 @@ void displayRules() {
 }
 
 
+void viewScorecard() {
+    ifstream file("scorecard.txt");
+    if (file.is_open()) {
+        string line;
+        cout <<""<< endl;
+        cout <<""<< endl;
+        cout << RED << "                                ADMIN MODE" << RESET << endl;
+        drawLine();
+        cout <<""<< endl;
+        cout << CYAN << "                   ************************************" << RESET << endl;
+        cout << CYAN << "                   * " << RESET <<  MAGENTA <<"            SCORECARD"<< RESET << CYAN << "            *" << RESET << endl;
+        cout << CYAN << "                   ************************************" << RESET << endl;
+        cout << endl;
+        // cout << BLUE << "                   PLAYER NAME          |          SCORE" << RESET << endl;
+        while (getline(file, line)) {
+            cout << GREEN <<"                   " << line << RESET << endl;
+        }
+        
+        file.close();
+        cout <<""<< endl;
+        cout <<""<< endl;
+        // drawLine();
+        // Sleep(2500);
+    } else {
+        cout << RED << "Error reading scorecard!" << RESET << endl;
+    }
+}
 
+void saveScore(const string &name, int score) {
+    ofstream file("scorecard.txt", ios::app); 
+    if (file.is_open()) {
+        file << "Player: " << name << "              Score: " << score << endl;
+        file.close();
+    } else {
+        cout << RED << "Error saving score!" << RESET << endl;
+    }
+}
+
+void adminMode(){
+    string adminUsername, adminPassword;
+    string correctUsername = "biplobhancy@gmail.com";  
+    string correctPassword = "bips"; 
+    cout << GREEN << "                          ***************************************************" << RESET << endl;
+    cout << GREEN << "                          * " << RESET <<  MAGENTA <<"                   LOGIN PAGE  "<< RESET << GREEN << "                 *" << RESET << endl;
+    cout << GREEN << "                          ***************************************************" << RESET << endl;
+    cout <<""<< endl;
+    cout <<""<< endl;
+    cout <<""<< endl;
+    cout << CYAN << "                           Enter Admin Username: " << RESET;
+    cin >> adminUsername;
+    pause();
+    cout << CYAN << "                           Enter Admin Password: "<< RESET;
+    cin >> adminPassword;
+    cout <<""<< endl;
+
+    if(adminUsername == correctUsername && adminPassword == correctPassword){
+        Sleep(3000);
+        cout << GREEN << "                           Access granted." << RESET << endl;
+        pause();
+        clearScreen();
+        viewScorecard();
+    }else {
+        cout << RED << "Provide valid username or password......" << RESET << endl;
+    }
+}
 void displayMenu(){
-    displayRules();
-    cout << " " <<endl;
-    cout << " " <<endl;
-    cout << GREEN << "                                  Please, try to answer them correctly" << RESET <<endl;
-    Sleep(10000);
-    clearScreen();
-    // cout << " " <<endl;
-    // cout << " " <<endl;
-
-    cout << CYAN << "Enter your choice wisely......" << RESET << endl;
-    cout << "" << endl;
+    cout << CYAN << "What do you want to choose ?" << RESET << endl;
     cout << GREEN << "              1. Mythology" << RESET << endl;
     cout << GREEN << "              2. Geography" << RESET << endl;
     cout << GREEN << "              3. Science" << RESET << endl;
@@ -86,20 +166,114 @@ void displayMenu(){
     cout << "" << endl;
 }
 
-void endingDisplay(){
-    cout << ""<< endl;
-    cout << ""<< endl;
-    cout << CYAN << "                            =========================================="<< RESET << endl;
-    cout << CYAN << "                            |                                        |"<< RESET << endl;
-    cout << CYAN << "                            |                                        |"<< RESET << endl;
-    cout << CYAN << "                            |  " << RESET << RED <<"             THE END...  "<< RESET << CYAN << "             |" << RESET << endl;
-    cout << CYAN << "                            |                                        |"<< RESET << endl;
-    cout << CYAN << "                            |                                        |"<< RESET << endl;
-    cout << CYAN << "                            =========================================="<< RESET << endl;
+
+void playerMode(int &score, bool &lifelineUse){
+    string playerName;
+    bool exitedGame = false;
+    int choice;
+    // header();
+    displayRules();
+    cout << ""<<endl;
+    cout << ""<<endl;
+    cout << GREEN << "Please enter your name: " << RESET;
+    cin >> playerName;
+    pause();
+    clearScreen();
+    drawLine();
+    header();
+    drawLine();
+    cout << " " <<endl;
+    cout << " " <<endl;
+    cout << YELLOW << "                                  Please, try to answer them correctly" << RESET <<endl;
+    cout << " " <<endl;
+    cout << " " <<endl;
+    // Sleep(10000);
+    // clearScreen();
+    displayMenu();
+    drawLine();
+    pause();
+    cout << MAGENTA << "Enter choice: " << RESET;
+    cin >> choice;
+    pause();
+    clearScreen();
+
+    switch(choice){
+        case 1:
+            askHistory(score, lifelineUse);
+            break;
+        case 2:
+            askGeography(score, lifelineUse);
+            break;        
+        case 3: 
+            askScience(score, lifelineUse);
+            break;
+        case 4:
+            askSports(score, lifelineUse);
+            break;
+        case 5: 
+            cout << ""<<endl;
+            cout << ""<<endl;
+            cout << ""<<endl;
+            cout << RED << "Quitting the game." << RESET << endl;
+            cout <<""<< endl;
+            cout <<""<< endl;
+            cout <<""<< endl;
+            exitedGame = true;
+            break;
+        default :
+            cout << RED << "Invalid Choice" << endl;
+    } 
+      if(!exitedGame){
+            cout << ""<<endl;
+            cout << ""<<endl;
+            cout << ""<<endl;
+            cout << BLUE << "CONGRATULATIONS........ "<< RESET  << endl;
+            cout << MAGENTA << "             Your Score is " <<  score << RESET << endl;
+            if (score >= 95) {
+                    cout << GREEN << "               Outstanding !!!" << RESET << endl;
+                    } else if (score >= 80) {
+                    cout << CYAN << "               Nice Job !!!" << RESET << endl;
+                    } else if (score >= 50) {
+                    cout << CYAN << "               Well Done" << RESET << endl;
+                    } else {
+                    cout << RED << "               Better luck next time !!!" << RESET << endl;
+                     }   
+    } else {
+        cout << ""<<endl;
+        cout << ""<<endl;
+        cout << ""<<endl;
+        cout << BLUE << "Your Score is " <<  score << RESET << endl;
+    }
+    saveScore(playerName, score);
 }
 
-
-
+void displayFirst() {
+    int mode;
+    cout << CYAN << "Choose mode: " << RESET << endl;
+    cout << GREEN << "      1. Admin Mode" << RESET << endl;
+    cout << GREEN << "      2. Player Mode" << RESET << endl;
+    cout << RED << "      3. Exit" << RESET << endl;
+    cout << "" << endl;
+    cin >> mode;
+    pause();
+    clearScreen();
+    int score = 0;
+    bool lifelineUse = false;
+     switch(mode) {
+        case 1:
+            adminMode();
+            break;
+        case 2:
+            playerMode(score, lifelineUse);
+            break;
+        case 3:
+        cout << RED << "Exiting the game." << RESET << endl;
+            break;
+        default:
+            cout << RED << "Invalid choice. Please select a valid mode." << RESET << endl;
+            displayFirst();
+    }
+}
 
 void displayQuestion (const string &question ,const string options[]){
     cout << YELLOW << question << RESET << endl;
@@ -132,8 +306,7 @@ void applyLifeline( string currentOptions[], const string &correctOption , bool 
 
 }
 
-void askQuestion(const string question[], const string options[][4],
-    const string correctOptions[], int &score, bool &lifelineUse){
+void askQuestion(const string question[], const string options[][4], const string correctOptions[], int &score, bool &lifelineUse){
         char answer;
         for ( int i=0; i< 10; i++){
             string currentOptions[4];
@@ -177,6 +350,7 @@ void askQuestion(const string question[], const string options[][4],
                 cout << "" << endl;
                 cout << "" << endl;
                 score = score + 10;
+                cout << GREEN << "Your present score is:"<<score << RESET << endl;
             } else {
                 cout << RED << "Wrong! The correct answer is " << correctOptions[i] << "." << RESET << endl;
                 score = score - 5;
@@ -213,20 +387,6 @@ void askQuestion(const string question[], const string options[][4],
 //     }
 
 // };
-
-
-
-
-void saveScore(const string &name, int score) {
-    ofstream file("scorecard.txt", ios::app); 
-    if (file.is_open()) {
-        file << "Player: " << name << ", Score: " << score << endl;
-        file.close();
-    } else {
-        cout << RED << "Error saving score!" << RESET << endl;
-    }
-}
-
 
 void askHistory(int &score, bool &lifelineUse){
 
@@ -391,77 +551,9 @@ void askSports(int &score, bool &lifelineUse){
 
 int main()
 {
-    // Design d;
-    string playerName;
-    int choice;
-    int score = 0;
-    bool exitedGame = false;
-    bool lifelineUse = false;
-    
     quizStart();
-    cout << YELLOW << "Please enter your name: " << RESET;
-    cin >> playerName;
-    // Sleep(1000);
-    clearScreen();
-    displayMenu(); 
-
-    cin >> choice;
-    pause();
-    clearScreen();
-
-    switch(choice){
-        case 1:
-            askHistory(score, lifelineUse);
-            break;
-        case 2:
-            askGeography(score, lifelineUse);
-            break;        
-        case 3: 
-            askScience(score, lifelineUse);
-            break;
-        case 4:
-            askSports(score, lifelineUse);
-            break;
-        case 5: 
-            cout << ""<<endl;
-            cout << ""<<endl;
-            cout << ""<<endl;
-            cout << RED << "Quitting the game." << RESET << endl;
-            exitedGame = true;
-            break;
-        default :
-            cout << RED << "Invalid Choice" << endl;
-    }   
-
-
-   if(!exitedGame){
-            cout << ""<<endl;
-            cout << ""<<endl;
-            cout << ""<<endl;
-            cout << BLUE << "CONGRATULATIONS........ "<< RESET  << endl;
-            cout << MAGENTA << "             Your Score is " <<  score << RESET << endl;
-            if (score >= 95) {
-                    cout << GREEN << "              Outstanding !!!" << RESET << endl;
-                    } else if (score >= 80) {
-                    cout << CYAN << "               Nice Job !!!" << RESET << endl;
-                    } else if (score >= 50) {
-                    cout << CYAN << "               Well Done" << RESET << endl;
-                    } else {
-                    cout << RED << "                Better luck next time !!!" << RESET << endl;
-                     }   
-    }  
-    cout << ""<<endl;
-    cout << ""<<endl; 
-    saveScore(playerName, score); 
-    endingDisplay();
-    // drawLine();
-    cout << ""<<endl;
-    cout << ""<<endl; 
-    cout << ""<<endl;
-    cout << ""<<endl; 
-    // drawLine();
+    displayFirst();
+    drawLine();
     return 0;
 }
-
-
 

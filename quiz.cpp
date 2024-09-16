@@ -14,7 +14,7 @@ const string MAGENTA = "\033[35m";
 const string RESET = "\033[0m"; 
 
 
-// bool exitedGame = false;
+// bool exitGame = false;
 
 void quizStart();
 void displayRules();
@@ -345,6 +345,7 @@ void askQuestion(const string question[], const string options[][4], const strin
                 cout << "" << endl;
                 cout << "" << endl;
                 score = score + 10;
+                cout << GREEN << "Your present score is:"<<score << RESET << endl;
             } else {
                 cout << RED << "Wrong! The correct answer is " << correctOptions[i] << "." << RESET << endl;
                 score = score - 5;
